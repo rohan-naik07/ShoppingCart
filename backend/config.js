@@ -4,5 +4,6 @@ module.exports = {
     'facebook': {
         clientId: '664276484492568',
         clientSecret: '6e5e8af10316ca149e99ebfbbfb4c9c5'
-    }
+    },
+    'JWT_SECRET_KEY' : 'ghantasecretkey'
 }
