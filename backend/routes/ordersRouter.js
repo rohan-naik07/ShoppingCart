@@ -3,11 +3,12 @@ const express = require('express');
 const Orders = require('../models/order');
 const bodyParser = require('body-parser');
 const orderRouter = express.Router();
+const { verifyToken } = require('../routes/auth')
 
 orderRouter.use(bodyParser.json());
 
 orderRouter.route('/:userId')
-.get(
+.get( verifyToken,
     function (req, res,next){
         const userId = req.params.userId;
         Orders.find({ userId : userId }).populate({
@@ -30,12 +31,16 @@ orderRouter.route('/:userId')
         })
     }
 )
-.post(
+.post( verifyToken,
     function (req, res,next){
         Orders.find({
             userId : req.params.userId
         }).then((err,userOrders)=>{
-            if(err) {next(err)};
+            if(err) {
+                console.log(error);
+                next(err)
+                return
+            };
             if(userOrders == null) {
                 Orders.create({
                     userId: req.params.userId,
