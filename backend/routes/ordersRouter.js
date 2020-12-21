@@ -41,7 +41,7 @@ orderRouter.route('/:userId')
                 next(err)
                 return
             };
-            if(userOrders == null) {
+            if(!userOrders) {
                 Orders.create({
                     userId: req.params.userId,
                     orders : req.body
@@ -72,6 +72,17 @@ orderRouter.route('/:userId')
             }
         })
     }
-);
+).delete(verifyToken,(req,res,next)=>{
+    Orders.remove({
+        userId: req.params.userId
+    }).then(()=>{
+        res.status(200).send("Orders Deleted");
+    },(error)=>{
+        next(error)
+    })
+    .catch((error)=>{
+        next(error)
+    });
+})
 
 module.exports = orderRouter;
