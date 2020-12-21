@@ -17,15 +17,13 @@ export const fetchOrders = () => {
       }
 
       const resData = await response.json();
-      console.log('Backend ref');
-      console.log(response.body());
       const loadedOrders = [];
 
-      for (const key in resData) {
+      for (const key in resData) {  //resData[0].orders
         loadedOrders.push(
           new Order(
             key,
-            resData[key].cartItems,
+            resData[key].cartItems,//resData[0].orders[key].cartItems,
             resData[key].totalAmount,
             new Date(resData[key].date)
           )
@@ -66,8 +64,6 @@ export const addOrder = (cartItems, totalAmount) => {
     }
 
     const resData = await response.json();
-    console.log('Backend ref');
-    console.log(resData);
 
     dispatch({
       type: ADD_ORDER,

@@ -1,51 +1,21 @@
-import React from 'react';
-import {FlatList, Button, Platform, Alert, View,StyleSheet} from 'react-native';
+import React,{useState,useCallback} from 'react';
+import {FlatList, Button, Platform, Alert, View,StyleSheet,Text} from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import HeaderButton from '../../components/HeaderButton';
 import ProductItem from '../../components/ProductItem';
 import Colors from '../../constants/Colors';
 import * as productsActions from '../../store/actions/product';
-import {useState,useEffect,useCallback} from 'react';
-import ItemModal from '../../components/ItemModal';
 
 
 const UserProductScreen = props => {
   const userProducts = useSelector(state => state.products.userProducts);
   const dispatch = useDispatch();
-  const [modalVisible, setModalVisible] = useState(false);
-  const [id,setId] = useState("");
-  const [title,setTitle] = useState("");
-  const [imageUrl,setImageUrl] = useState("");
-  const [description,setDescription] = useState("");
-  const [price,setPrice] = useState("");
-
-  const addProductHandler = useCallback(()=>{
-    setId("");
-    setTitle("");
-    setDescription("");
-    setImageUrl("");
-    setPrice("");
-    setModalVisible(true);
-  },[setTitle,setDescription,setImageUrl,setModalVisible,setPrice]);
-
-  const editProductHandler = (id) => {
-    //props.navigation.navigate('EditProduct', { productId: id });
-    const EditProduct = userProducts.find(product=>product.id===id);
-    setId(id.toString());
-    setTitle(EditProduct.title);
-    setImageUrl(EditProduct.imageUrl);
-    setDescription(EditProduct.description);
-    setPrice(EditProduct.price);
-    setModalVisible(true);
+  const editProductHandler = id => {
+    props.navigation.navigate('EditProduct', { productId: id });
   };
 
-  useEffect(()=>{
-    props.navigation.setParams({
-      add : addProductHandler
-    });
-  },[addProductHandler]);
-
+  
   const deleteHandler = (id) => {
     Alert.alert('Are you sure?', 'Do you really want to delete this item?', [
       { text: 'No', style: 'default' },
@@ -59,19 +29,18 @@ const UserProductScreen = props => {
     ]);
   };
 
+ 
+
+  if (userProducts.length === 0) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>No products found, maybe start creating some?</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.centeredView}>
-    <ItemModal 
-        open={modalVisible} 
-        toggleModal={()=>{
-            setModalVisible(!modalVisible);   
-        }}
-        id={id}
-        title={title}
-        description={description}
-        price={price}
-        imageUrl={imageUrl}/>
-        
     <FlatList
       data={userProducts}
       keyExtractor={item => item.id}
@@ -123,10 +92,9 @@ const styles = StyleSheet.create({
 })
 
 UserProductScreen.navigationOptions = navData => {
-  const showModal = navData.navigation.getParam('add');
   return {
     headerTitle: 'Your Products',
-    headerLeft: ()=>(
+    headerLeft: (
       <HeaderButtons HeaderButtonComponent={HeaderButton}>
         <Item
           title="Menu"
@@ -137,12 +105,14 @@ UserProductScreen.navigationOptions = navData => {
         />
       </HeaderButtons>
     ),
-    headerRight: ()=>(
+    headerRight: (
       <HeaderButtons HeaderButtonComponent={HeaderButton}>
         <Item
           title="Add"
           iconName={Platform.OS === 'android' ? 'md-create' : 'ios-create'}
-          onPress={showModal}
+          onPress={() => {
+            navData.navigation.navigate('EditProduct');
+          }}
         />
       </HeaderButtons>
     )
