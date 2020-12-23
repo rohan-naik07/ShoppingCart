@@ -2,7 +2,8 @@ import { LOGOUT_USER,AUTHENTICATE } from '../actions/auth';
 
 const initialState = {
   token: null,
-  userId: null
+  userId: null,
+  reviews : []
 };
 
 export default (state = initialState, action) => {

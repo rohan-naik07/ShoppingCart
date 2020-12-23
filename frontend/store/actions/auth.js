@@ -3,6 +3,7 @@ export const AUTHENTICATE = 'AUTHENTICATE';
 export const LOGOUT_USER = 'LOGOUT_USER';
 
 let timer;
+const baseUrl = 'http://192.168.1.101:8000/'
 
 export const authenticate = (userId, token, expiryTime) => {
   return dispatch => {
@@ -14,7 +15,7 @@ export const authenticate = (userId, token, expiryTime) => {
 export const signup = (email, password) => {
     return async dispatch => {
       const response = await fetch(
-        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyATK9j1PvMchV58zku13XIGRg1-xzI4Pec',
+        baseUrl + 'auth/signup',
         {
           method: 'POST',
           headers: {
@@ -30,12 +31,7 @@ export const signup = (email, password) => {
   
       if (!response.ok) {
         const errorResData = await response.json();
-        const errorId = errorResData.error.message;
-        let message = 'Something went wrong!';
-        if (errorId === 'EMAIL_EXISTS') {
-          message = 'This email exists already!';
-        }
-        throw new Error(message);
+        throw new Error(errorResData.message);
       }
   
       const resData = await response.json();
@@ -43,8 +39,8 @@ export const signup = (email, password) => {
 
       dispatch(
         authenticate(
-          resData.localId,
-          resData.idToken,
+          resData.userId,
+          resData.token,
           parseInt(resData.expiresIn) *1000
         )
       );
@@ -58,7 +54,7 @@ export const signup = (email, password) => {
 
 export const loginUser = (email, password)=>{
     const loginUrl = 
-    'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyATK9j1PvMchV58zku13XIGRg1-xzI4Pec';
+    baseUrl + 'auth/login';
 
     return async dispatch=>{
         const response = await fetch(loginUrl,{
@@ -68,31 +64,22 @@ export const loginUser = (email, password)=>{
             },
             body: JSON.stringify({
                 email,
-                password,
-                returnSecureToken : true
+                password
             })
 
         });
-        if (!response.ok) {
-            const errorResData = await response.json();
-            const errorId = errorResData.error.message;
-            console.log(errorId)
-            let message = 'Something went wrong!';
 
-            if (errorId === 'EMAIL_NOT_FOUND') {
-              message = 'This email could not be found!';
-            } else if (errorId === 'INVALID_PASSWORD') {
-              message = 'This password is not valid!';
-            }
-            throw new Error(message);
-          }
+        if (!response.ok) {
+          const errorResData = await response.json();
+          throw new Error(errorResData.message);
+        }
         
           const resData = await response.json();
           console.log(resData);
           dispatch(
             authenticate(
-              resData.localId,
-              resData.idToken,
+              resData.userId,
+              resData.token,
               parseInt(resData.expiresIn) *1000
             )
           );
@@ -101,6 +88,33 @@ export const loginUser = (email, password)=>{
           );
           saveDataToStorage(resData.idToken, resData.localId, expirationDate);
     }
+}
+
+export const addReview = (productId,rating,feedback)=>{
+  return async (dispatch,getState)=>{
+    let id = getState().auth.userId;
+    let token = getState().auth.token;
+    const response = await fetch( baseUrl + `/reviews/${productId}`,{
+      method : 'POST',
+      headers : {
+        'content-type' : 'application/json',
+        'Authorization' : `Bearer ${token}`
+    },
+    body: JSON.stringify({
+        rating : rating,
+        feedback : feedback,
+        userId : id
+    })
+      }
+    );
+      if (!response.ok) {
+        throw new Error('Something went wrong!');
+      }
+
+    const jsonResponse = await response.json();
+    console.log(jsonResponse);
+    const loadedProducts = []
+  }
 }
 
 export const logoutUser = ()=>{

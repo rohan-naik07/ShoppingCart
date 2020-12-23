@@ -1,19 +1,92 @@
-import React, { useEffect } from 'react';
-import { FlatList, View,Image,Button,ScrollView } from 'react-native';
+import React, { useEffect,useState,useCallback} from 'react';
+import { FlatList, View,Image,Button} from 'react-native';
 import {StyleSheet,Text} from 'react-native';
 import {useSelector,useDispatch} from 'react-redux';
 import {addCart} from '../../store/actions/cart';
 import Colors from '../../constants/Colors';
+import ReviewModal from '../../components/ReviewModal';
+import {HeaderButtons,Item} from 'react-navigation-header-buttons';
+import HeaderButton from '../../components/HeaderButton';
 
 const ProductDetailsScreen = props =>{
     const dispatch = useDispatch();
     const productId = props.navigation.getParam('productId');
+    const reviews = useSelector(state => state.products.reviews);
+    const [isLoading,setLoading] = useState(false);
+    const [isRefreshing,setRefreshing] = useState(false);
+    const [isOpen,setOpen] = useState(false);
+    const [error,setError] = useState(null);
     const selectedProduct = useSelector(state =>
         state.products.availableProducts.find(prod => prod.id === productId)
       );
+    
+    const renderReviewItem = (itemData)=>{
+        return (
+            <View>
+                <Text>{itemData.item.feedback}</Text>
+            </View>
+        )
+    }
+    
+    const getReviews= useCallback(async ()=>{
+        setError(null);
+        setRefreshing(true);
+        try{
+            await dispatch(fetchReviews(productId));  
+        } catch (error){
+            setError(error.message)
+        }
+        setRefreshing(false);
+    },[setRefreshing,dispatch,setError])
+
+    useEffect(() => {
+        const willFocusSub = props.navigation.addListener(
+          'willFocus',
+          getReviews
+        );
+        props.navigation.setParams({
+            addReview : ()=>{
+                setOpen(!isOpen);
+            }
+        })
+        return () => {
+          willFocusSub.remove();
+        };
+      }, []);
+
+    useEffect(()=>{
+        setLoading(true);
+        //getReviews();
+        setLoading(false);
+    },[getReviews])  // const and useCallback
+
+    if(isLoading){
+        console.log('loading..')
+        return (
+            <View style={styles.screen}>
+                <ActivityIndicator size='large'/>
+            </View>
+        )
+    }
+
+    if(error){
+        console.log('error..')
+        return (
+            <View style={styles.screen}>
+                <Text>{error}</Text>
+            </View>
+        )
+    }
 
     return (
         <View style={styles.screen}>
+             <ReviewModal 
+                open={isOpen}
+                navigation = {props.navigation}
+                productId ={productId}
+                toggleModal={()=>{
+                    setOpen(!isOpen);   
+            }}/>
             <View style={styles.ImageContainer}>
                 <Image style={styles.Image} source={{uri : selectedProduct.imageUrl}}/>
             </View>
@@ -32,14 +105,50 @@ const ProductDetailsScreen = props =>{
                     fontSize : 20
             }}>${selectedProduct.price}</Text>
             </View>
+            <View style={{
+                flexDirection : 'row',
+                justifyContent : 'space-between',
+                alignItems : 'center',
+                margin : 10
+            }}>
+                <View style={{ flex : 1}}>
+                    <Text style={{
+                        fontSize : 20
+                    }}>User Reviews</Text>
+                </View>
+                <View style={{ 
+                    flex : 1,
+                    borderColor : 'black',
+                    borderRadius : 10,
+                    borderWidth : 1,
+                    alignItems : 'center',
+                    padding : 5
+                }}>
+                    <Text style={{color : Colors.primary}}>Average Ratings : 4.5</Text>
+                </View>
+            </View>
+            <View>
+            <FlatList data={reviews}
+                onRefresh={getReviews}
+                refreshing={isRefreshing}
+                style = {{width : '100%'}}
+                keyExtractor={item=>item.id} 
+                renderItem={renderReviewItem}/>
+            </View>
         </View>
     );
 }
 
 ProductDetailsScreen.navigationOptions = (navData)=>{
     const productTitle = navData.navigation.getParam('productTitle');
+    const addReview = navData.navigation.getParam('addReview');
     return{
-        headerTitle : productTitle
+        headerTitle : productTitle,
+        headerRight : ()=> <HeaderButtons HeaderButtonComponent={HeaderButton}>
+            <Item title='Review' 
+            iconName='md-create'
+            onPress={addReview}/>
+            </HeaderButtons>
     }
 }
 

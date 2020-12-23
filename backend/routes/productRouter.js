@@ -24,7 +24,7 @@ productRouter.route('/')
 )
 .post( verifyToken,
     function (req, res,next){
-            Products.create(req.body).then(products=>{
+        Products.create(req.body).then(products=>{
                 console.log(products);
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');

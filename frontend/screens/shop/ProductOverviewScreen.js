@@ -16,7 +16,7 @@ const ProductOverviewScreen = props => {
     const [error,setError] = useState(null);
 
     const renderProductItem = (itemData)=>{
-        //console.log(itemData.item.imageUrl);
+        console.log(itemData.item);
         return (
         <ProductItem onSelectItem={()=>{
             props.navigation.navigate('ProductDetails',{
@@ -104,7 +104,7 @@ const ProductOverviewScreen = props => {
                 onRefresh={getProducts}
                 refreshing={isRefreshing}
                 style = {{width : '100%'}}
-                keyExtractor={item=>item.id} 
+                keyExtractor={item=>item._id} 
                 renderItem={renderProductItem}/>
         </View>
     )

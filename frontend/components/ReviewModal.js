@@ -6,22 +6,28 @@ import {
   View,
   Modal,
   Alert,
-  Text
+  Text,
+  TextInput
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import * as productsActions from '../store/actions/product';
-import Input from '../components/Input';
+import { Rating, AirbnbRating } from 'react-native-ratings';
 
 const FORM_INPUT_UPDATE = 'FORM_INPUT_UPDATE';
 
-
-const ItemModal=props => {
+const ReviewModal=props => {
 
   const dispatch = useDispatch();
-  
+  const Reviews = ["Terrible", "Bad","Good", "Very Good","Amazing"]
+  const [feedback,setFeedback] = useState("");
+  const [rating,setRating] = useState("0");
+  const ratingCompleted = (Rating)=>{
+    setRating(Rating)
+  }
   const submitHandler = useCallback(() => {
-   
-  }, [dispatch]);
+      console.log(rating)
+      console.log(feedback)
+  }, [dispatch,rating,feedback]);
 
      return(
       <Modal
@@ -29,10 +35,32 @@ const ItemModal=props => {
           transparent={true}
           visible={props.open}
           onRequestClose={() => {
-            Alert.alert("Modal has been closed.");
+            props.toggleModal();
           }}>
           <View style={styles.centeredView}>
-            <View style={styles.modalView}></View>  
+            <View style={styles.modalView}>
+            <AirbnbRating
+                count={5}
+                reviews={Reviews}
+                defaultRating={5}
+                onFinishRating={ratingCompleted}
+                size={25}
+              />
+            <View style={styles.formControl}>
+                <Text style={styles.label}>Feedback</Text>
+                  <TextInput
+                    returnKeyType="next"
+                    value={feedback}
+                    onChangeText={text =>setFeedback(text)}
+                    style={styles.input}/>
+              </View>
+              <View style={{...styles.button,...styles.submit}}>
+                    <Button
+                      color={Colors.blue}
+                      title="Submit"
+                      onPress={submitHandler}/>
+                </View>
+            </View>  
           </View>
         </Modal>
       )
@@ -89,10 +117,11 @@ const ItemModal=props => {
         color : 'white'
       },
       submit : {
-        width : '40%',
+        width : '60%',
         justifyContent: "center",
+        marginTop : 10
         //alignItems: "center"
       }
 })
 
-export default ItemModal;
+export default ReviewModal;

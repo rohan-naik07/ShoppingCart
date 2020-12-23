@@ -1,15 +1,15 @@
-import { useState } from 'react';
 import Order from '../../models/order';
 
 export const ADD_ORDER = 'ADD_ORDER';
 export const SET_ORDERS = 'SET_ORDERS';
+const baseUrl = 'http://192.168.1.101:8000/'
 
 export const fetchOrders = () => {
   return async (dispatch,getState) => {
     const userId = getState().auth.userId;
     try {
       const response = await fetch(
-        `https://shoppingcart-f670e-default-rtdb.firebaseio.com/orders/${userId}.json`
+        baseUrl + `/orders/${userId}`
       );
 
       if (!response.ok) {
@@ -19,13 +19,13 @@ export const fetchOrders = () => {
       const resData = await response.json();
       const loadedOrders = [];
 
-      for (const key in resData) {  //resData[0].orders
+      for (const order in resData[0].orders) {  //resData[0].orders
         loadedOrders.push(
           new Order(
-            key,
-            resData[key].cartItems,//resData[0].orders[key].cartItems,
-            resData[key].totalAmount,
-            new Date(resData[key].date)
+            order._id,
+            order.cartItems,//order.cartItems,
+            order.totalAmount,
+            new Date(order.date)
           )
         );
       }
@@ -43,11 +43,12 @@ export const addOrder = (cartItems, totalAmount) => {
     const userId = getState().auth.userId;
     const token = getState().auth.token;
     const response = await fetch(
-      `https://shoppingcart-f670e-default-rtdb.firebaseio.com/orders/${userId}.json?auth=${token}`,
+      baseUrl + `/orders/${userId}`,
       {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization' : `Bearer ${token}`
         },
         body: JSON.stringify({
           cartItems,
@@ -59,7 +60,7 @@ export const addOrder = (cartItems, totalAmount) => {
 
     if (!response.ok) {
       const errorResData = await response.json();
-      const errorId = errorResData.error.message;
+      const errorId = errorResData.message;
       throw new Error('Something went wrong!' + errorId);
     }
 
@@ -68,7 +69,7 @@ export const addOrder = (cartItems, totalAmount) => {
     dispatch({
       type: ADD_ORDER,
       orderData: {
-        id: resData.name,
+        id: resData._id,
         items: cartItems,
         amount: totalAmount,
         date: date

@@ -3,13 +3,15 @@ import {
   DELETE_PRODUCT,
   CREATE_PRODUCT,
   UPDATE_PRODUCT,
-  FETCH_PRODUCT
+  FETCH_PRODUCT,
+  FETCH_REVIEWS
 } from '../actions/product';
 import Product from '../../models/product';
 
 const initialState = {
   availableProducts: [],
-  userProducts: []
+  userProducts: [],
+  reviews : []
 };
 
 export default (state = initialState, action) => {
@@ -68,6 +70,11 @@ export default (state = initialState, action) => {
           product => product.id !== action.pid
         )
       };
+    case FETCH_REVIEWS :
+      return { 
+        ...state,
+        reviews : action.reviews
+      }
   }
   return state;
 };

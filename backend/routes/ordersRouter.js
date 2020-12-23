@@ -35,13 +35,9 @@ orderRouter.route('/:userId')
     function (req, res,next){
         Orders.find({
             userId : req.params.userId
-        }).then((err,userOrders)=>{
-            if(err) {
-                console.log(error);
-                next(err)
-                return
-            };
-            if(!userOrders) {
+        }).then((userOrders)=>{
+            console.log(userOrders)
+            if(userOrders.length===0) {
                 Orders.create({
                     userId: req.params.userId,
                     orders : req.body
@@ -57,8 +53,8 @@ orderRouter.route('/:userId')
                     next(error)
                 });
             } else {
-                userOrders.orders.push(req.body);
-                userOrders.save().then((orders)=>{
+                userOrders[0].orders.push(req.body);
+                userOrders[0].save().then((orders)=>{
                     console.log("Order saved : " + orders);
                     res.statusCode = 200;
                     res.setHeader('Content-Type', 'application/json');

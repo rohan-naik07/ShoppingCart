@@ -33,7 +33,12 @@ authRouter.post('/login', async (req,res,next)=>{
             },
             config.JWT_SECRET_KEY
             );
-        res.status(200).json({ error: false, token: token });
+        res.status(200).json({ 
+            error: false,
+            token: token,
+            userId : user._id,
+            expiresIn : 3600
+        });
     } catch(error) {
         res.json({
             error: true,
@@ -56,9 +61,18 @@ authRouter.post('/signup',async (req,res,next)=>{
             email : req.body.email,
             password : password
         });
-        res.status(200).json({
+        const token = jwt.sign(
+            {
+                _id: user._id,
+                email: user.email
+            },
+            config.JWT_SECRET_KEY
+            );
+        res.status(200).json({ 
             error: false,
-            message: "User Registered Successfully",
+            token: token,
+            userId : user._id,
+            expiresIn : 3600
         });
     } catch(error) {
         console.log(error)
