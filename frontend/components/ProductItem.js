@@ -1,5 +1,6 @@
 import React from 'react';
 import {View,Text,StyleSheet,TouchableOpacity,ImageBackground} from 'react-native';
+import Colors from '../constants/Colors'
 
 const ProductItem = props => {
     return (
@@ -9,7 +10,7 @@ const ProductItem = props => {
             <ImageBackground source={{uri : props.imageUrl}} style={styles.bgImage}>
                 <View style={{...styles.row,...styles.dataContainer}}>
                     <Text style={styles.title} numberOfLines={1}>{props.title}</Text>
-                    <Text style={styles.title}>${props.price}</Text>
+                    <View style={styles.price}><Text style={styles.title}>${props.price}</Text></View>
                 </View>
             </ImageBackground>
         </View>
@@ -47,7 +48,12 @@ const styles = StyleSheet.create({
     title : {
         fontSize : 15,
         color : 'white',
-        textAlign : 'center'
+        textAlign : 'center',
+    },
+    price :{
+        backgroundColor:'#2979ff',
+        borderRadius : 20,
+        padding : 10
     },
     dataContainer : {
         width : '100%',

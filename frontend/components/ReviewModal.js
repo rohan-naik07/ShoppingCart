@@ -10,6 +10,7 @@ import {
   TextInput
 } from 'react-native';
 import { useDispatch } from 'react-redux';
+import * as authActions from '../store/actions/auth';
 import * as productsActions from '../store/actions/product';
 import { Rating, AirbnbRating } from 'react-native-ratings';
 
@@ -24,10 +25,14 @@ const ReviewModal=props => {
   const ratingCompleted = (Rating)=>{
     setRating(Rating)
   }
-  const submitHandler = useCallback(() => {
-      console.log(rating)
-      console.log(feedback)
-  }, [dispatch,rating,feedback]);
+
+  const {productId,toggleModal} = props;
+
+  const submitHandler = useCallback(async() => {
+      await dispatch(authActions.addReview(productId,parseInt(rating),feedback))
+      await dispatch(productsActions.fetchReviews(productId))
+      toggleModal();
+  }, [dispatch,rating,feedback,productId]);
 
      return(
       <Modal
@@ -35,7 +40,7 @@ const ReviewModal=props => {
           transparent={true}
           visible={props.open}
           onRequestClose={() => {
-            props.toggleModal();
+            toggleModal();
           }}>
           <View style={styles.centeredView}>
             <View style={styles.modalView}>

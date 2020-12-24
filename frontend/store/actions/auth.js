@@ -3,7 +3,7 @@ export const AUTHENTICATE = 'AUTHENTICATE';
 export const LOGOUT_USER = 'LOGOUT_USER';
 
 let timer;
-const baseUrl = 'http://192.168.1.101:8000/'
+const baseUrl = 'http://192.168.0.35:8000/'
 
 export const authenticate = (userId, token, expiryTime) => {
   return dispatch => {
@@ -94,7 +94,7 @@ export const addReview = (productId,rating,feedback)=>{
   return async (dispatch,getState)=>{
     let id = getState().auth.userId;
     let token = getState().auth.token;
-    const response = await fetch( baseUrl + `/reviews/${productId}`,{
+    const response = await fetch( baseUrl + `reviews/${productId}`,{
       method : 'POST',
       headers : {
         'content-type' : 'application/json',

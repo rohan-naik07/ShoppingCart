@@ -46,7 +46,7 @@ const CartScreen = props=>{
     }
 
     if(isLoading){
-        console.log('loading..')
+        //console.log('loading..')
         return (
             <View style={styles.screen}>
                 <ActivityIndicator size='large'/>
@@ -55,7 +55,7 @@ const CartScreen = props=>{
     }
     
     if(error){
-        console.log('error..')
+        //console.log('error..')
         return (
             <View style={styles.screen}>
                 <Text>{error}</Text>

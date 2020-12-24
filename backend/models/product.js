@@ -8,7 +8,7 @@ const ProductSchema = new Schema({
     title: String,
     imageUrl: String,
     description: String,
-    price: Currency
+    price: String
 },{
     timestamps: true
 });

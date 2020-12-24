@@ -1,3 +1,4 @@
+//import product from "../../../backend/models/product";
 import Product from "../../models/product";
 
 export const DELETE_PRODUCT = 'DELETE_PRODUCT';
@@ -6,7 +7,7 @@ export const UPDATE_PRODUCT = 'UPDATE_PRODUCT';
 export const FETCH_PRODUCT = 'FETCH_PRODUCT';
 export const FETCH_REVIEWS = 'FETCH_REVIEWS'
 
-const baseUrl = 'http://192.168.1.101:8000/'
+const baseUrl = 'http://192.168.0.35:8000/'
 
 export const deleteProduct = productId => {
   return async (dispatch,getState) =>{
@@ -48,9 +49,8 @@ export const fetchProducts = ()=>{
       const jsonResponse = await response.json();
       const loadedProducts = []
 
-      console.log(jsonResponse)
-  
-      for(const product in jsonResponse){
+      jsonResponse.forEach(product=>{
+        console.log(product);
         loadedProducts.push(new Product(
           product._id,
           id,
@@ -59,8 +59,8 @@ export const fetchProducts = ()=>{
           product.description,
           product.price
         ))
-      }
-  
+      })
+
       dispatch({
         type: FETCH_PRODUCT,
         products : loadedProducts,
@@ -120,7 +120,7 @@ export const updateProduct = (id, title, description, imageUrl,price) => {
     let Userid = getState().auth.userId;
     let token = getState().auth.token;
     console.log(id);
-    const response = await fetch(baseUrl + `products/${productId}`,{
+    const response = await fetch(baseUrl + `products/${id}`,{
       method : 'PUT',
       headers : {
         'Content-Type' : 'application/json',
@@ -154,7 +154,7 @@ export const updateProduct = (id, title, description, imageUrl,price) => {
 
 export const fetchReviews = (productId)=>{
   return async (dispatch,getState)=>{
-    const response = await fetch(baseUrl + `/reviews/${productId}`);
+    const response = await fetch(baseUrl + `reviews/${productId}`);
     let id = getState().auth.userId;
       
       if (!response.ok) {
@@ -164,5 +164,9 @@ export const fetchReviews = (productId)=>{
     const jsonResponse = await response.json();
     console.log(jsonResponse);
     const loadedProducts = []
+    dispatch({
+      type : FETCH_REVIEWS,
+      reviews : jsonResponse
+    })
   }
 }

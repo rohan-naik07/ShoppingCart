@@ -16,6 +16,7 @@ const StartScreen = props =>{
     useEffect(()=>{
         const tryLogin = async () => {
             const userData = await AsyncStorage.getItem('userData');
+            console.log('userData');
             if (!userData) {
               console.log('id absent')
                 props.navigation.navigate('Auth');

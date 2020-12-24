@@ -8,7 +8,7 @@ const { verifyToken } = require('../routes/auth')
 orderRouter.use(bodyParser.json());
 
 orderRouter.route('/:userId')
-.get( verifyToken,
+.get( 
     function (req, res,next){
         const userId = req.params.userId;
         Orders.find({ userId : userId }).populate({
@@ -18,6 +18,7 @@ orderRouter.route('/:userId')
                 model : 'Product'
             }
         }).then((orders)=>{
+            console.log(orders)
             res.statusCode = 200; 
             res.setHeader('Content-Type','application/json');
             res.json(orders);

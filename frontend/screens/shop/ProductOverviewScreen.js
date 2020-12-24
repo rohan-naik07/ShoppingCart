@@ -16,7 +16,6 @@ const ProductOverviewScreen = props => {
     const [error,setError] = useState(null);
 
     const renderProductItem = (itemData)=>{
-        console.log(itemData.item);
         return (
         <ProductItem onSelectItem={()=>{
             props.navigation.navigate('ProductDetails',{
@@ -74,7 +73,6 @@ const ProductOverviewScreen = props => {
     },[cartHandler,drawerHandler,getProducts,dispatch])  // const and useCallback
 
     if(isLoading){
-        console.log('loading..')
         return (
             <View style={styles.screen}>
                 <ActivityIndicator size='large'/>
@@ -83,7 +81,6 @@ const ProductOverviewScreen = props => {
     }
 
     if(error){
-        console.log('error..')
         return (
             <View style={styles.screen}>
                 <Text>{error}</Text>
@@ -104,7 +101,7 @@ const ProductOverviewScreen = props => {
                 onRefresh={getProducts}
                 refreshing={isRefreshing}
                 style = {{width : '100%'}}
-                keyExtractor={item=>item._id} 
+                keyExtractor={item=>item.id} 
                 renderItem={renderProductItem}/>
         </View>
     )

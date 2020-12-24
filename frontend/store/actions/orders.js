@@ -2,7 +2,7 @@ import Order from '../../models/order';
 
 export const ADD_ORDER = 'ADD_ORDER';
 export const SET_ORDERS = 'SET_ORDERS';
-const baseUrl = 'http://192.168.1.101:8000/'
+const baseUrl = 'http://192.168.0.35:8000'
 
 export const fetchOrders = () => {
   return async (dispatch,getState) => {
@@ -13,13 +13,14 @@ export const fetchOrders = () => {
       );
 
       if (!response.ok) {
-        throw new Error('Something went wrong!');
+        throw new Error(response.message);
       }
 
       const resData = await response.json();
+      console.log(resData)
       const loadedOrders = [];
 
-      for (const order in resData[0].orders) {  //resData[0].orders
+      resData[0].orders.forEach(order=>{  //resData[0].orders
         loadedOrders.push(
           new Order(
             order._id,
@@ -28,7 +29,8 @@ export const fetchOrders = () => {
             new Date(order.date)
           )
         );
-      }
+      })
+
       dispatch({ type: SET_ORDERS, orders: loadedOrders });
     } catch (err) {
       throw err;

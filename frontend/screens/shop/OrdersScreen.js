@@ -77,9 +77,9 @@ const OrdersScreen = props => {
               color: 'black',
               backgroundColor : Colors.accent,
               borderRadius : 10
-          }}>${itemData.item.totalAmount.toString()}</Text>
+          }}>${itemData.item.totalAmount}</Text>
         </View>
-        <ScrollView style={styles.list} key={orderedProducts.id}>
+        <ScrollView style={styles.list} key={orderedProducts._id}>
           {orderedProducts.map((product)=>{
             return <OrderItem image={product.imageUrl}
                     title={product.title}

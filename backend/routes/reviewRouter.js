@@ -11,9 +11,10 @@ reviewRouter.route('/')
 .get( 
     function(req,res,next){
         Reviews.find({}).then(reviews=>{
-            res.sendStatus(200)
+            console.log(reviews)
+            res.status(200)
             .setHeader('Content-Type','application/json')
-            .json(reviews)
+            res.json(reviews)
         },(error)=>{
             console.log(error);
             next(error);
@@ -45,13 +46,18 @@ reviewRouter.route('/:productId')
     function(req,res,next){
         Reviews.find({
             productId : req.params.productId
-        }).populate({
-            path : 'userId',
-            model : 'Users'
         }).then(reviews=>{
-            res.sendStatus(200)
-            .setHeader('Content-Type','application/json')
-            .json(reviews)
+            console.log(reviews)
+            if(reviews.length===0){
+                res.status(404)
+                .setHeader('Content-Type','application/json')
+                return res.json({
+                    error: true,
+                    message: "No Reviews",
+                });
+            }
+            res.status(200).setHeader('Content-Type','application/json')
+            res.json(reviews)
         },(error)=>{
             console.log(error);
             next(error);
@@ -69,9 +75,9 @@ reviewRouter.route('/:productId')
            productId : req.params.productId
        }).then(reviews=>{
         console.log(reviews);
-        res.sendStatus(200)
+        res.status(200)
         .setHeader('Content-Type','application/json')
-        .json(reviews)
+        res.json(reviews)
        },(error)=>{
         console.log(error);
         next(error);
@@ -99,9 +105,9 @@ reviewRouter.route('/:productId/:userId')
         Reviews.find({
             userId : req.params.userId
         }).then(reviews=>{
-            res.sendStatus(200)
+            res.status(200)
             .setHeader('Content-Type','application/json')
-            .json(reviews)
+            res.send(reviews)
         },(error)=>{
             console.log(error);
             next(error);

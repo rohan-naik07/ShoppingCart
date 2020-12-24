@@ -7,6 +7,8 @@ import Colors from '../../constants/Colors';
 import ReviewModal from '../../components/ReviewModal';
 import {HeaderButtons,Item} from 'react-navigation-header-buttons';
 import HeaderButton from '../../components/HeaderButton';
+import {fetchReviews} from '../../store/actions/product'
+import { Rating, AirbnbRating } from 'react-native-ratings';
 
 const ProductDetailsScreen = props =>{
     const dispatch = useDispatch();
@@ -14,6 +16,7 @@ const ProductDetailsScreen = props =>{
     const reviews = useSelector(state => state.products.reviews);
     const [isLoading,setLoading] = useState(false);
     const [isRefreshing,setRefreshing] = useState(false);
+    const [avgRating,setAvgRating] = useState(0);
     const [isOpen,setOpen] = useState(false);
     const [error,setError] = useState(null);
     const selectedProduct = useSelector(state =>
@@ -22,11 +25,40 @@ const ProductDetailsScreen = props =>{
     
     const renderReviewItem = (itemData)=>{
         return (
-            <View>
+            <View style={{
+                flex : 1,
+                margin : 10,
+                borderRadius : 10,
+                backgroundColor : '#E0E0E0',
+                padding : 10
+            }}>
+            <AirbnbRating
+                count={itemData.item.rating}
+                showRating={false}
+                defaultRating={itemData.item.rating}
+                isDisabled={true}
+                size={20}
+                starContainerStyle={{
+                    width : '100%',
+                    justifyContent : 'flex-start',
+                }}
+              />
                 <Text>{itemData.item.feedback}</Text>
             </View>
         )
     }
+
+    useEffect(()=>{
+        let result = 0;
+        if(reviews){
+            reviews.forEach(review=>{
+                result+=parseFloat(review.rating);
+            })
+            result = result/reviews.length;
+            setAvgRating(result.toFixed(1).toString())
+        }
+        
+    },[isOpen,reviews])
     
     const getReviews= useCallback(async ()=>{
         setError(null);
@@ -56,24 +88,14 @@ const ProductDetailsScreen = props =>{
 
     useEffect(()=>{
         setLoading(true);
-        //getReviews();
+        getReviews();
         setLoading(false);
     },[getReviews])  // const and useCallback
 
     if(isLoading){
-        console.log('loading..')
         return (
             <View style={styles.screen}>
                 <ActivityIndicator size='large'/>
-            </View>
-        )
-    }
-
-    if(error){
-        console.log('error..')
-        return (
-            <View style={styles.screen}>
-                <Text>{error}</Text>
             </View>
         )
     }
@@ -124,17 +146,17 @@ const ProductDetailsScreen = props =>{
                     alignItems : 'center',
                     padding : 5
                 }}>
-                    <Text style={{color : Colors.primary}}>Average Ratings : 4.5</Text>
+                    <Text style={{color : Colors.primary}}>Average Ratings : {avgRating}</Text>
                 </View>
             </View>
-            <View>
+            {reviews?
             <FlatList data={reviews}
-                onRefresh={getReviews}
-                refreshing={isRefreshing}
-                style = {{width : '100%'}}
-                keyExtractor={item=>item.id} 
-                renderItem={renderReviewItem}/>
-            </View>
+            onRefresh={getReviews}
+            refreshing={isRefreshing}
+            style = {{width : '100%'}}
+            keyExtractor={item=>item._id} 
+            renderItem={renderReviewItem}/>
+            :  <Text>No Reviews for this product</Text>}   
         </View>
     );
 }
